@@ -79,8 +79,36 @@ Get-WmiObject -query "SELECT * FROM Win32_IP4RouteTable"
 
 4. Toujours depuis la VM Windows A, à l’aide de WMI Monitor, affichez la quantité de mémoire disponible sur la machine Windows B.
 
+> Pour configurer WinB pour faire des requêtes distantes WMI
+
+Dans l'application **Exécuter** lancer **DCOMCNFG**. Puis dans le menu `Racine de console  > Services de composants > Ordinateurs >  Poste de travail` faites un clique droit `Propriété` et allez sur l'onglet  `Sécurité COM` et ajouter l'utilisateur **labo** et lui ajouter toutes les autorisations.
+
+| Autorisations d'accès | Auorisations d'exécution et d'activation |
+| --------------------- | ---------------------------------------- |
+| ![](img/4_1.png)      | ![](img/4_2.png)                         |
+
+Dans l'application **Exécuter** lancer **wmimgmt.msc**. Puis dans le menu `Racine de la console > Contrôle WMI(local)`   faites un clique droit `Propriété` et allez dans l'onglet `Sécurité` et sélectionné **WMI** puis appuyer sur le bouton `Sécurité` et ajouter l'utilisateur **labo** et lui ajouter toutes les autorisations. Puis ensuite faites un redémarrage de la machine. 
+
+![](img/4_3.png)
+
+On peut tester sur WMI monitor, sur la machine WinA, et on constate que la liaison s'effectue correctement. 
+
+![](img/4_4.png)
+
 > Montrez le trafic entre la VM Windows A et la VM Windows B à l’aide d’une capture Wireshark.
+
+on peut voire que WMI monitor émet beaucoup de trafic. Ci-dessous la requête d'authentification sur la machine Win B.
+
+![](img/4_5.png)
 
 5. Toujours depuis la VM Windows A, écrivez un script PowerShell qui permette de lister les partitions de la machine Windows B avec leur lettre de lecteur et de retourner le pourcentage d’espace vide.
 
 > En cas d’espace insuffisant, une alarme syslog est générée.
+
+````powershell
+$user = "labo"
+$password = "grx" | ConvertTo-SecureString -AsPlainText -Force
+$creds = New-Object System.Management.Automation.PSCredential($user, $password)
+$result = Get-WmiObject -query "SELECT * FROM Win32_LogicalDisk" -ComputerName 192.168.2.5 -Credential $creds
+````
+
