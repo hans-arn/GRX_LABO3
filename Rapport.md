@@ -95,20 +95,48 @@ On peut tester sur WMI monitor, sur la machine WinA, et on constate que la liais
 
 ![](img/4_4.png)
 
+![](img/4_6.png)
+
 > Montrez le trafic entre la VM Windows A et la VM Windows B à l’aide d’une capture Wireshark.
 
 on peut voire que WMI monitor émet beaucoup de trafic. Ci-dessous la requête d'authentification sur la machine Win B.
 
 ![](img/4_5.png)
 
+Wmi utilise le protocole **DCERPC** pour effectuer la communication, nous avons filtrer en conséquence sur wireshark.
+
 5. Toujours depuis la VM Windows A, écrivez un script PowerShell qui permette de lister les partitions de la machine Windows B avec leur lettre de lecteur et de retourner le pourcentage d’espace vide.
 
 > En cas d’espace insuffisant, une alarme syslog est générée.
 
 ````powershell
+# credentials sur la machine WinB
 $user = "labo"
 $password = "grx" | ConvertTo-SecureString -AsPlainText -Force
 $creds = New-Object System.Management.Automation.PSCredential($user, $password)
-$result = Get-WmiObject -query "SELECT * FROM Win32_LogicalDisk" -ComputerName 192.168.2.5 -Credential $creds
+
+# Seuil pour le lancement d'alerte 
+$threshold = 0.2
+
+# Envoi de la requête et filtrage des informations de la liste de disque
+$disks = Get-WmiObject Win32_LogicalDisk -ComputerName 192.168.2.5 -Credential $creds | Select-Object Size,FreeSpace,DeviceID
+
+# iétration pour chaque disque dans la liste
+echo("Liste des disques présent:")
+ForEach ($disk in $disks){
+    # calcul en pourcent de l'espace libre disponible
+    $freeSpace = [math]::round($disk.FreeSpace/$disk.Size,2) * 100
+
+    # affichage du disque, de l'espace libre en octets et en %
+    echo ("$($disk.DeviceID) libre $($disk.FreeSpace) octets ($($freeSpace)%)")
+
+    if($disk.FreeSpace -lt ($disk.Size * $threshold)){
+        # envoi d'un warning (severity = 4) sur la machine WinA (Server 192.168.1.3)
+        send-syslog -Server 192.168.1.3 -Severity 4 -Message "Il reste moins de $($threshold * 100)% d'espace sur le disque $($disk.DeviceID)" 
+    }
+}
 ````
 
+![](img/5_1.png)
+
+Comme on peut le constater sur la capture, deux disques sont actuellement listés sur la machine WinB. L'un des deux ne possède plus d'espace libre.
