@@ -25,7 +25,7 @@ Même chose qu'à la manipulation précédente mais cette fois sur la classe Use
 
 ![](img/2_wmim.png)
 
-Et on peut constater le résultat dans l'active directory.
+Et on peut constater le résultat dans l'active directory n'est malheureusement pas celui voulu. Avec l'outil WMI monitor (du moins la version gratuite) il n'est pas possible de récupérer le SID de l'utilisateur 
 
 ![](img/2_wmim2.png)
 
@@ -79,15 +79,17 @@ Get-WmiObject -query "SELECT * FROM Win32_IP4RouteTable" | Select-Object Age,Nam
 ![](img/powershell_iproutetable.png)
 > Note: Nous avons filtré les éléments affichés afin de tout afficher en une seul capture.
 
-4. Toujours depuis la VM Windows A, à l’aide de WMI Monitor, affichez la quantité de mémoire disponible sur la machine Windows B.
+4. Toujours depuis la VM Windows A, à l’aide de WMI Monitor, affichez la quantité de mémoire disponible sur la machine Windows B. 
+
+   # Dans le cadre de ce travail, nous sommes partis sur la mémoire du disque dur étant donné que cela n'était pas précisé.
 
 > Pour configurer WinB pour faire des requêtes distantes WMI
 
 Dans l'application **Exécuter** lancer **DCOMCNFG**. Puis dans le menu `Racine de console  > Services de composants > Ordinateurs >  Poste de travail` faites un clique droit `Propriété` et allez sur l'onglet  `Sécurité COM` et ajouter l'utilisateur **labo** et lui ajouter toutes les autorisations.
 
-| Autorisations d'accès | Auorisations d'exécution et d'activation |
-| --------------------- | ---------------------------------------- |
-| ![](img/4_1.png)      | ![](img/4_2.png)                         |
+| Autorisations d'accès | Autorisations d'exécution et d'activation |
+| --------------------- | ----------------------------------------- |
+| ![](img/4_1.png)      | ![](img/4_2.png)                          |
 
 Dans l'application **Exécuter** lancer **wmimgmt.msc**. Puis dans le menu `Racine de la console > Contrôle WMI(local)`   faites un clique droit `Propriété` et allez dans l'onglet `Sécurité` et sélectionné **WMI** puis appuyer sur le bouton `Sécurité` et ajouter l'utilisateur **labo** et lui ajouter toutes les autorisations. Puis ensuite faites un redémarrage de la machine. 
 
