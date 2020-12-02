@@ -74,7 +74,7 @@ path win32_IP4RouteTable
 > PowerShell
 
 ````powershell
-Get-WmiObject -query "SELECT * FROM Win32_IP4RouteTable" 
+Get-WmiObject -query "SELECT * FROM Win32_IP4RouteTable" | Select-Object Age,Name,Description,Destination
 ````
 
 4. Toujours depuis la VM Windows A, à l’aide de WMI Monitor, affichez la quantité de mémoire disponible sur la machine Windows B.
